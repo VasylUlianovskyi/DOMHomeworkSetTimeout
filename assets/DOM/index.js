@@ -40,9 +40,21 @@ const news = [
 
 // Вставте елементи масиву об'єктів (title, headerBgSrc, category, body, date) в ul так, щоб на кожен об'єкт був свій li (аналогічно прикладу usersList із заняття).
 
+const newsArray = news.map((obj) => {
+  return { ...obj, isDelete: false };
+});
+
+console.log(newsArray);
+
 const ulEl = document.querySelector(".newsList");
 
-news.forEach((el) => {
+newsArray.forEach((el) => {
+  if (!el.isDelete) {
+    renderNewsItem(el);
+  }
+});
+
+function renderNewsItem(el, nextSibling = null) {
   const liEl = document.createElement("li");
   liEl.classList.add("newsEl");
   liEl.innerHTML = `
@@ -56,23 +68,26 @@ news.forEach((el) => {
       <button class="deleteBtn">DELETE</button>
   `;
 
-  ulEl.append(liEl);
+  nextSibling
+    ? nextSibling.insertAdjacentElement("beforebegin", liEl)
+    : ulEl.append(liEl);
 
   // Зробіть так, щоб після натискання на кнопку всередині li ця li видалялася з розмітки.
 
   const deleteEl = liEl.querySelector(".deleteBtn");
   deleteEl.addEventListener("click", () => {
+    const nextSibling = liEl.nextElementSibling;
     ulEl.removeChild(liEl);
+    el.isDelete = true;
+    showRestoreBtn(el, nextSibling);
   });
 
   // * Зробіть так, щоб після натискання на li - він підсвічувався іншим кольором.
 
   liEl.addEventListener("click", () => {
-    if (liEl.style.boxShadow) {
-      liEl.style.boxShadow = "";
-    } else {
-      liEl.style.boxShadow = "rgba(214, 13, 13, 0.9) 0px 0px 15px";
-    }
+    liEl.style.boxShadow = liEl.style.boxShadow
+      ? ""
+      : "rgba(214, 13, 13, 0.9) 0px 0px 15px";
   });
 
   //   * Реалізувати підсвічування лайка при натисканні на нього.
@@ -83,12 +98,34 @@ news.forEach((el) => {
     "click",
     (event) => {
       event.stopPropagation();
-      if (likeBtn.classList.contains("likedBtn")) {
-        likeBtn.classList.remove("likedBtn");
-      } else {
-        likeBtn.classList.add("likedBtn");
-      }
+      likeBtn.classList.toggle("likedBtn");
     },
     { capture: true }
   );
-});
+
+  ///додано можливість повертати видалений елемент
+
+  function createRestoreButton() {
+    const liRestoreBtn = document.createElement("li");
+    liRestoreBtn.classList.add("newsEl");
+    liRestoreBtn.innerHTML = `<button class="restoreBtn">RESTORE</button>`;
+    return liRestoreBtn;
+  }
+
+  function showRestoreBtn(el, nextSibling) {
+    const liRestoreBtn = createRestoreButton();
+
+    if (nextSibling) {
+      nextSibling.insertAdjacentElement("beforebegin", liRestoreBtn);
+    } else {
+      ulEl.append(liRestoreBtn);
+    }
+
+    const restoreBtn = liRestoreBtn.querySelector(".restoreBtn");
+    restoreBtn.addEventListener("click", () => {
+      el.isDelete = false;
+      ulEl.removeChild(liRestoreBtn);
+      renderNewsItem(el, nextSibling);
+    });
+  }
+}

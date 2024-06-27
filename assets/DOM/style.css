@@ -80,7 +80,8 @@ body {
   font-size: 14px;
 }
 
-.deleteBtn {
+.deleteBtn,
+.restoreBtn {
   background-color: #ff6347;
   color: white;
   border: none;
@@ -92,6 +93,10 @@ body {
 
 .deleteBtn:hover {
   background-color: #cc4125;
+}
+
+.restoreBtn {
+  background-color: rgb(126, 203, 255);
 }
 
 .likeBtn {
